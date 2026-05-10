@@ -6,6 +6,7 @@ VRM avatar pipeline, and VRChat integration.
 """
 
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -68,8 +69,14 @@ logger = structlog.get_logger(__name__)
 class Unity3DConfig(BaseModel):
     """Configuration for Unity3D MCP server."""
 
-    unity_editor_path: str = Field(default="", description="Path to Unity Editor executable")
-    project_path: str = Field(default="", description="Default Unity project path")
+    unity_editor_path: str = Field(
+        default_factory=lambda: os.getenv("UNITY_EDITOR_PATH", ""),
+        description="Path to Unity Editor executable",
+    )
+    project_path: str = Field(
+        default_factory=lambda: os.getenv("UNITY_PROJECT_PATH", ""),
+        description="Default Unity project path",
+    )
     auto_detect_unity: bool = Field(default=True, description="Auto-detect Unity Editor installation")
     enable_http: bool = Field(default=True, description="Enable HTTP interface alongside stdio")
     http_port: int = Field(default=10831, description="HTTP server port (fleet 10831 backend per WEBAPP_PORTS)")
@@ -1311,33 +1318,45 @@ async def unity3d_bridge_status() -> Dict[str, Any]:
 
 
 @app.tool()
-async def unity3d_editor_api(action: str, target: str = None, **kwargs) -> Dict[str, Any]:
+async def unity3d_editor_api(
+    action: str,
+    target: Optional[str] = None,
+    parameters: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """[Hands-In] Execute a real-time command in an active Unity Editor session.
 
     Args:
         action: The action to perform (ping, get_hierarchy, transform_object, create_object, delete_object).
         target: The name or InstanceID of the target GameObject.
-        **kwargs: Additional parameters (position, rotation, name, type).
+        parameters: Additional parameters (position, rotation, name, type).
     """
-    return await _bridge_client.execute_command(action, target=target, **kwargs)
+    return await _bridge_client.execute_command(action, target=target, **(parameters or {}))
 
 
 @app.tool()
-async def unity3d_disk_api(operation: str, file_path: str, **kwargs) -> Dict[str, Any]:
+async def unity3d_disk_api(
+    operation: str,
+    file_path: str,
+    parameters: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """[Hands-Off] Manipulate Unity project assets directly on disk without Unity running.
 
     Args:
         operation: The operation (inspect_file, list_textures, modify_yaml).
         file_path: Absolute path to the .unity, .prefab, or .asset file.
-        **kwargs: component_type, property_name, new_value for modify_yaml.
+        parameters: component_type, property_name, new_value for modify_yaml.
     """
+    params = parameters or {}
     if operation == "inspect_file":
         return UnityDiskOps.inspect_file(file_path)
     elif operation == "list_textures":
         return {"textures": UnityDiskOps.list_textures(file_path)}
     elif operation == "modify_yaml":
         return UnityDiskOps.modify_yaml_property(
-            file_path, kwargs.get("component_type"), kwargs.get("property_name"), kwargs.get("new_value")
+            file_path,
+            params.get("component_type"),
+            params.get("property_name"),
+            params.get("new_value"),
         )
     return {"error": f"Unknown operation: {operation}"}
 
