@@ -47,13 +47,52 @@ class UnityBridgeClient:
     async def get_hierarchy(self) -> Dict[str, Any]:
         return await self.execute_command("get_hierarchy")
 
+    async def get_components(self, target: str) -> Dict[str, Any]:
+        return await self.execute_command("get_components", target=target)
+
     async def transform_object(
-        self, target: str, position: List[float] = None, rotation: List[float] = None
+        self,
+        target: str,
+        position: List[float] = None,
+        rotation: List[float] = None,
+        scale: List[float] = None,
     ) -> Dict[str, Any]:
-        return await self.execute_command("transform_object", target=target, position=position, rotation=rotation)
+        return await self.execute_command(
+            "set_transform",
+            target=target,
+            position=position,
+            rotation=rotation,
+            scale=scale,
+        )
 
     async def create_object(self, name: str, type: str = "GameObject") -> Dict[str, Any]:
         return await self.execute_command("create_object", name=name, type=type)
 
+    async def create_primitive(
+        self,
+        name: str,
+        primitive_type: str = "Cube",
+        position: List[float] = None,
+        rotation: List[float] = None,
+        scale: List[float] = None,
+    ) -> Dict[str, Any]:
+        return await self.execute_command(
+            "create_primitive",
+            name=name,
+            primitiveType=primitive_type,
+            position=position,
+            rotation=rotation,
+            scale=scale,
+        )
+
+    async def add_component(self, target: str, component_type: str) -> Dict[str, Any]:
+        return await self.execute_command("add_component", target=target, componentType=component_type)
+
     async def delete_object(self, target: str) -> Dict[str, Any]:
         return await self.execute_command("delete_object", target=target)
+
+    async def save_scene(self) -> Dict[str, Any]:
+        return await self.execute_command("save_scene")
+
+    async def get_console_counts(self) -> Dict[str, Any]:
+        return await self.execute_command("get_console_counts")

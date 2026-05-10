@@ -1334,6 +1334,89 @@ async def unity3d_editor_api(
 
 
 @app.tool()
+async def unity_get_hierarchy() -> Dict[str, Any]:
+    """Return the active Unity scene hierarchy with transforms and object metadata."""
+    return await _bridge_client.get_hierarchy()
+
+
+@app.tool()
+async def unity_get_components(target: str) -> Dict[str, Any]:
+    """Return components attached to a Unity scene object.
+
+    Args:
+        target: GameObject name, hierarchy path, or instance ID.
+    """
+    return await _bridge_client.get_components(target)
+
+
+@app.tool()
+async def unity_create_primitive(
+    name: str,
+    primitive_type: str = "Cube",
+    position: Optional[List[float]] = None,
+    rotation: Optional[List[float]] = None,
+    scale: Optional[List[float]] = None,
+) -> Dict[str, Any]:
+    """Create a Unity primitive in the active scene.
+
+    Args:
+        name: Name for the created GameObject.
+        primitive_type: Unity PrimitiveType name, for example Cube, Sphere, Capsule, Cylinder, Plane, Quad.
+        position: Optional world position as [x, y, z].
+        rotation: Optional Euler rotation as [x, y, z].
+        scale: Optional local scale as [x, y, z].
+    """
+    return await _bridge_client.create_primitive(name, primitive_type, position, rotation, scale)
+
+
+@app.tool()
+async def unity_set_transform(
+    target: str,
+    position: Optional[List[float]] = None,
+    rotation: Optional[List[float]] = None,
+    scale: Optional[List[float]] = None,
+) -> Dict[str, Any]:
+    """Set transform values for a Unity scene object.
+
+    Args:
+        target: GameObject name, hierarchy path, or instance ID.
+        position: Optional world position as [x, y, z].
+        rotation: Optional Euler rotation as [x, y, z].
+        scale: Optional local scale as [x, y, z].
+    """
+    return await _bridge_client.transform_object(target, position, rotation, scale)
+
+
+@app.tool()
+async def unity_add_component(target: str, component_type: str) -> Dict[str, Any]:
+    """Add a component to a Unity scene object.
+
+    Args:
+        target: GameObject name, hierarchy path, or instance ID.
+        component_type: Component type name or full type name, for example Rigidbody or UnityEngine.BoxCollider.
+    """
+    return await _bridge_client.add_component(target, component_type)
+
+
+@app.tool()
+async def unity_delete_object(target: str) -> Dict[str, Any]:
+    """Delete a Unity scene object by name, hierarchy path, or instance ID."""
+    return await _bridge_client.delete_object(target)
+
+
+@app.tool()
+async def unity_save_scene() -> Dict[str, Any]:
+    """Save the active Unity scene and project assets."""
+    return await _bridge_client.save_scene()
+
+
+@app.tool()
+async def unity_get_console_counts() -> Dict[str, Any]:
+    """Return Unity Console error, warning, and log counts."""
+    return await _bridge_client.get_console_counts()
+
+
+@app.tool()
 async def unity3d_disk_api(
     operation: str,
     file_path: str,
