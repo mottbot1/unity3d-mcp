@@ -1326,7 +1326,8 @@ async def unity3d_editor_api(
     """[Hands-In] Execute a real-time command in an active Unity Editor session.
 
     Args:
-        action: The action to perform (ping, get_hierarchy, transform_object, create_object, delete_object).
+        action: The action to perform (ping, get_hierarchy, transform_object, create_object, delete_object,
+            refresh_assets, get_editor_state, clear_console, run_editmode_tests, get_test_status, open_scene).
         target: The name or InstanceID of the target GameObject.
         parameters: Additional parameters (position, rotation, name, type).
     """
@@ -1414,6 +1415,47 @@ async def unity_save_scene() -> Dict[str, Any]:
 async def unity_get_console_counts() -> Dict[str, Any]:
     """Return Unity Console error, warning, and log counts."""
     return await _bridge_client.get_console_counts()
+
+
+@app.tool()
+async def unity_clear_console() -> Dict[str, Any]:
+    """Clear the Unity Console and return the remaining error, warning, and log counts."""
+    return await _bridge_client.clear_console()
+
+
+@app.tool()
+async def unity_get_editor_state() -> Dict[str, Any]:
+    """Return Unity Editor state including scene, compiling, play mode, and active build target."""
+    return await _bridge_client.get_editor_state()
+
+
+@app.tool()
+async def unity_refresh_assets() -> Dict[str, Any]:
+    """Force Unity to synchronously refresh imported assets and save asset metadata."""
+    return await _bridge_client.refresh_assets()
+
+
+@app.tool()
+async def unity_open_scene(scene_path: str, force: bool = False) -> Dict[str, Any]:
+    """Open a Unity scene in the active editor.
+
+    Args:
+        scene_path: Absolute path or project-relative path to a .unity scene.
+        force: If true, discard unsaved active scene changes before opening.
+    """
+    return await _bridge_client.open_scene(scene_path, force)
+
+
+@app.tool()
+async def unity_run_editmode_tests() -> Dict[str, Any]:
+    """Start Unity edit-mode tests through the active editor bridge."""
+    return await _bridge_client.run_editmode_tests()
+
+
+@app.tool()
+async def unity_get_test_status() -> Dict[str, Any]:
+    """Return the latest Unity edit-mode test run status and failure summaries."""
+    return await _bridge_client.get_test_status()
 
 
 @app.tool()

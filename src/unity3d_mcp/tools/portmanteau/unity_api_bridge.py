@@ -96,3 +96,21 @@ class UnityBridgeClient:
 
     async def get_console_counts(self) -> Dict[str, Any]:
         return await self.execute_command("get_console_counts")
+
+    async def clear_console(self) -> Dict[str, Any]:
+        return await self.execute_command("clear_console")
+
+    async def get_editor_state(self) -> Dict[str, Any]:
+        return await self.execute_command("get_editor_state")
+
+    async def refresh_assets(self) -> Dict[str, Any]:
+        return await self.execute_command("refresh_assets")
+
+    async def open_scene(self, scene_path: str, force: bool = False) -> Dict[str, Any]:
+        return await self.execute_command("open_scene", path=scene_path, force=force)
+
+    async def run_editmode_tests(self) -> Dict[str, Any]:
+        return await self.execute_command("run_editmode_tests")
+
+    async def get_test_status(self) -> Dict[str, Any]:
+        return await self.execute_command("get_test_status")
